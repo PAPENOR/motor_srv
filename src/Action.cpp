@@ -1,13 +1,20 @@
 #include "ros/ros.h"
 #include "motor_srv/Actioncode.h"
 #include "motor_srv/line_fallowing.h"
+#include <std_msgs/Int16MultiArray.h>
+#include <std_msgs/Int64MultiArray.h>
 #include <cstdlib>
 using namespace std;
+
+
 bool codetran(motor_srv::Actioncode::Request &req,
         motor_srv::Actioncode::Response &res)
 {
     ros::NodeHandle nh;
     ros::ServiceClient client = nh.serviceClient<motor_srv::line_fallowing>("line_fallowing");
+    
+    
+
     switch (req.Action_name1) {
     case 1:
     {

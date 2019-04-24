@@ -2,8 +2,16 @@
 #include "motor_srv/line_fallowing.h"
 #include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/Int64MultiArray.h>
+#include "sensor_msgs/LaserScan.h"
 using namespace std;
 int CNY70_DATA[5];
+
+int err=0;
+
+void err_READ(const std_msgs::Int16MultiArray& err_msg){
+  err = err_msg.data.at(0);
+}
+
 void CNY70_READ(const std_msgs::Int16MultiArray& CNY70_msg)
 {
 for(int i=0;i<CNY70_msg.data.size();i++)
@@ -15,10 +23,11 @@ for(int i=0;i<CNY70_msg.data.size();i++)
 bool add(motor_srv::line_fallowing::Request  &req,
         motor_srv::line_fallowing::Response &res)
 {
+  
   ros::NodeHandle ny,n;
   ros::Publisher move_pub = n.advertise<std_msgs::Int64MultiArray>("move", 100);
   ros::Rate loop_rate(10);
-  ros::Subscriber CNY70_pub = n.subscribe("/CNY70", 100, CNY70_READ);
+  
     /*Controler Data reset*/
     int sum=0,Mode=req.LineColor,Speed=req.Speed;
     /*Start line_fallowing*/
@@ -41,6 +50,16 @@ bool add(motor_srv::line_fallowing::Request  &req,
       pose_pub[1]=Speed*Mode;
 
 
+    if(err ==1){
+      pose_pub[0]=0;
+      pose_pub[1]=0;
+      std_msgs::Int64MultiArray msgmove;
+      msgmove.data.push_back(pose_pub[0]);
+      msgmove.data.push_back(pose_pub[1]);
+      move_pub.publish(msgmove);
+      ROS_INFO("err=1");
+      return false;
+    }
 
 
      /*Publish the value of motors*/
@@ -66,6 +85,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::NodeHandle ny;
   ros::Rate loop_rate(10);
+  ros::Subscriber err_sub = n.subscribe("err", 100, err_READ);
   ros::Publisher move_pub = n.advertise<std_msgs::Int64MultiArray>("move", 100);
   ros::Subscriber CNY70_pub = n.subscribe("/CNY70", 100, CNY70_READ);
   ros::ServiceServer service = n.advertiseService("line_fallowing", add);

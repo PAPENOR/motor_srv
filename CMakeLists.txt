@@ -167,6 +167,9 @@ add_dependencies(AUTOmission motor_srv_gencpp)
 add_executable(REMOTEmission src/REMOTEmission.cpp)
 target_link_libraries(REMOTEmission ${catkin_LIBRARIES})
 add_dependencies(REMOTEmission motor_srv_gencpp)
+add_executable(test_break src/test_break.cpp)
+target_link_libraries(test_break ${catkin_LIBRARIES})
+add_dependencies(test_break motor_srv_gencpp)
 
 #############
 ## Install ##
